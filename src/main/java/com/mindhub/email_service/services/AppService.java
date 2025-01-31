@@ -1,10 +1,6 @@
 package com.mindhub.email_service.services;
 
-import com.mindhub.email_service.dtos.NewUserDTO;
-import com.mindhub.email_service.dtos.OrderCreatedEvent;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

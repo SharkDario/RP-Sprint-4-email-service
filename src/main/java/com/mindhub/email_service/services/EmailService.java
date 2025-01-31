@@ -1,7 +1,7 @@
 package com.mindhub.email_service.services;
 
-import com.mindhub.email_service.dtos.NewUserDTO;
 import com.mindhub.email_service.dtos.OrderCreatedEvent;
+import com.mindhub.email_service.dtos.WelcomeMessage;
 import com.mindhub.email_service.models.PdfGenerator;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -28,10 +28,31 @@ public class EmailService {
     }
     // RabbitMQ listener for the "userRegister" queue
     @RabbitListener(queues = "userRegister")
-    public void listenerUserRegisterQueue(NewUserDTO userDTO){
+    public void listenerUserRegisterQueue(WelcomeMessage welcomeMessage){
         // Create a welcome email message
-        String emailContent = "Welcome, " + userDTO.username() + "! Thank you for your registration!.";
-        sendEmail(userDTO.email(), "Welcome", emailContent);
+        /*
+        SimpleMailMessage message = new SimpleMailMessage();
+        String link = "http://localhost:8080/api/auth/verify/" + welcomeMessage.token();
+        message.setTo(welcomeMessage.email());
+        message.setSubject("Verify your account");
+        message.setText("Welcome, " + welcomeMessage.username() + "! Thank you for your registration! Please click the link below to verify your account: " + link);
+        mailSender.send(message);
+
+         */
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+
+            String link = "http://localhost:8080/api/auth/verify/" + welcomeMessage.token();
+
+            mimeMessageHelper.setTo(welcomeMessage.email());
+            mimeMessageHelper.setSubject("Verify your account");
+            mimeMessageHelper.setText("Welcome, " + welcomeMessage.username() + "! Thank you for your registration! Please click the link below to verify your account: " + link);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
     // RabbitMQ listener for the "orderCreatedEvent" queue
     @RabbitListener(queues = "orderCreatedEvent")
